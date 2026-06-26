@@ -1,0 +1,30 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual Environment
+.venv/
+
+# VS Code
+.vscode/
+
+# Reports
+reports/
+
+# Documentation
+docs/
+
+# Tests
+tests/
+
+# Environment
+.env
+
+# OS Files
+.DS_Store
+Thumbs.db
