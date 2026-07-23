@@ -62,6 +62,7 @@ jobs:
           python scripts/policy_engine.py
 
       - name: Upload Security Reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: security-reports
