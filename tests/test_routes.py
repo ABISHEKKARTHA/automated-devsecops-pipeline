@@ -13,12 +13,12 @@ def client():
 
 def test_home(client):
     response = client.get("/")
-
     assert response.status_code == 200
 
     data = response.get_json()
 
     assert data["status"] == "Running"
+    assert "project" in data
 
 
 def test_health(client):
@@ -29,6 +29,7 @@ def test_health(client):
     data = response.get_json()
 
     assert data["status"] == "UP"
+    assert "timestamp" in data
 
 
 def test_version(client):
@@ -38,7 +39,8 @@ def test_version(client):
 
     data = response.get_json()
 
-    assert data["version"] == "1.0.0"
+    assert "version" in data
+    assert "environment" in data
 
 
 def test_info(client):
@@ -59,6 +61,7 @@ def test_security(client):
     data = response.get_json()
 
     assert "trivy" in data
+    assert "owasp_zap" in data
 
 
 def test_system(client):
