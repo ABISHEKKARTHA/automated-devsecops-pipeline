@@ -133,7 +133,7 @@ jobs:
             zap-baseline.py \
             -t http://localhost:5000 \
             -J zap-report.json \
-            -r zap-report.html
+            -I
 
       # -----------------------------
       # Stop Application
