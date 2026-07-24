@@ -1,6 +1,7 @@
 from flask import jsonify, current_app
 from app.services.security_service import get_security_summary
 from datetime import datetime
+from app.services.zap_service import ZapService
 from flask import render_template
 
 
@@ -67,8 +68,10 @@ def register_routes(app):
     def dashboard():
 
         data = get_security_summary()
+        zap = ZapService.get_summary()
 
         return render_template(
-            "dashboard.html", 
-            data=data
-            )
+            "dashboard.html",
+            data=data,
+            zap=zap
+        )
