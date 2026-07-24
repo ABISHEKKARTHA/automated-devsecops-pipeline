@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>DevSecOps Dashboard</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body class="bg-light">
+
+<div class="container mt-5">
+
+    <h1 class="mb-4">
+        DevSecOps Security Dashboard
+    </h1>
+
+    <div class="row">
+
+        <div class="col-md-3">
+            <div class="card border-danger shadow">
+                <div class="card-body">
+                    <h5>Critical</h5>
+                    <h2>{{ data.critical }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-warning shadow">
+                <div class="card-body">
+                    <h5>High</h5>
+                    <h2>{{ data.high }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-info shadow">
+                <div class="card-body">
+                    <h5>Medium</h5>
+                    <h2>{{ data.medium }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-success shadow">
+                <div class="card-body">
+                    <h5>Low</h5>
+                    <h2>{{ data.low }}</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card mt-5 shadow">
+
+        <div class="card-header">
+            Policy Status
+        </div>
+
+        <div class="card-body">
+
+            {% if data.policy == "PASSED" %}
+
+                <span class="badge bg-success fs-5">
+                    PASSED
+                </span>
+
+            {% else %}
+
+                <span class="badge bg-danger fs-5">
+                    FAILED
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,5 +1,7 @@
 from flask import jsonify, current_app
+from app.services.security_service import get_security_summary
 from datetime import datetime
+from flask import render_template
 
 
 def register_routes(app):
@@ -55,3 +57,18 @@ def register_routes(app):
             "build_status": "Success",
             "health": "Healthy"
         })
+
+    @app.route("/api/security/report")
+    def security_report():
+
+        return get_security_summary()
+
+    @app.route("/dashboard")
+    def dashboard():
+
+        data = get_security_summary()
+
+        return render_template(
+            "dashboard.html", 
+            data=data
+            )
