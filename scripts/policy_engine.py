@@ -2,15 +2,26 @@ import json
 import sys
 from pathlib import Path
 
-REPORT = Path("reports/trivy-report.json")
+TRIVY_REPORT = Path("reports/trivy-report.json")
+ZAP_REPORT = Path("reports/zap-report.json")
 SUMMARY = Path("reports/policy-summary.txt")
 
-if not REPORT.exists():
+# -----------------------------
+# Validate reports
+# -----------------------------
+if not TRIVY_REPORT.exists():
     print("❌ Trivy report not found.")
     sys.exit(1)
 
-with REPORT.open("r", encoding="utf-8") as f:
-    report = json.load(f)
+if not ZAP_REPORT.exists():
+    print("❌ ZAP report not found.")
+    sys.exit(1)
+
+# -----------------------------
+# Read Trivy Report
+# -----------------------------
+with TRIVY_REPORT.open("r", encoding="utf-8") as f:
+    trivy = json.load(f)
 
 summary = {
     "CRITICAL": 0,
@@ -21,7 +32,8 @@ summary = {
 
 critical_fixable = []
 
-for result in report.get("Results", []):
+for result in trivy.get("Results", []):
+
     for vuln in result.get("Vulnerabilities", []):
 
         severity = vuln.get("Severity", "UNKNOWN")
@@ -41,13 +53,59 @@ for result in report.get("Results", []):
                     "fixed": fixed_version
                 })
 
-print("\n========== SECURITY SUMMARY ==========\n")
+# -----------------------------
+# Read ZAP Report
+# -----------------------------
+with ZAP_REPORT.open("r", encoding="utf-8") as f:
+    zap = json.load(f)
+
+zap_summary = {
+    "HIGH": 0,
+    "MEDIUM": 0,
+    "LOW": 0,
+    "INFO": 0
+}
+
+for site in zap.get("site", []):
+
+    for alert in site.get("alerts", []):
+
+        risk = alert.get("riskcode", "0")
+
+        if risk == "3":
+            zap_summary["HIGH"] += 1
+
+        elif risk == "2":
+            zap_summary["MEDIUM"] += 1
+
+        elif risk == "1":
+            zap_summary["LOW"] += 1
+
+        else:
+            zap_summary["INFO"] += 1
+
+# -----------------------------
+# Print Summary
+# -----------------------------
+print("\n========== DEVSECOPS SECURITY SUMMARY ==========\n")
+
+print("TRIVY RESULTS")
+print("----------------")
 
 for key, value in summary.items():
     print(f"{key:<10}: {value}")
 
 print("\nFixable Critical Vulnerabilities:", len(critical_fixable))
 
+print("\nOWASP ZAP RESULTS")
+print("----------------")
+
+for key, value in zap_summary.items():
+    print(f"{key:<10}: {value}")
+
+# -----------------------------
+# Write Report
+# -----------------------------
 SUMMARY.parent.mkdir(exist_ok=True)
 
 with SUMMARY.open("w", encoding="utf-8") as f:
@@ -55,7 +113,18 @@ with SUMMARY.open("w", encoding="utf-8") as f:
     f.write("DEVSECOPS POLICY REPORT\n")
     f.write("=======================\n\n")
 
+    f.write("TRIVY RESULTS\n")
+    f.write("-------------\n")
+
     for key, value in summary.items():
+        f.write(f"{key:<10}: {value}\n")
+
+    f.write("\n")
+
+    f.write("OWASP ZAP RESULTS\n")
+    f.write("-----------------\n")
+
+    for key, value in zap_summary.items():
         f.write(f"{key:<10}: {value}\n")
 
     f.write("\n")
@@ -72,10 +141,22 @@ with SUMMARY.open("w", encoding="utf-8") as f:
                 f"{vuln['installed']} -> {vuln['fixed']}\n"
             )
 
-if critical_fixable:
+# -----------------------------
+# Policy Decision
+# -----------------------------
+policy_failed = False
 
+if critical_fixable:
     print("\n❌ POLICY FAILED")
-    print("Fixable critical vulnerabilities detected.")
+    print("Reason: Fixable critical vulnerabilities detected.")
+    policy_failed = True
+
+if zap_summary["HIGH"] > 0:
+    print("\n❌ POLICY FAILED")
+    print("Reason: High-risk OWASP ZAP alerts detected.")
+    policy_failed = True
+
+if policy_failed:
     sys.exit(1)
 
 print("\n✅ POLICY PASSED")
