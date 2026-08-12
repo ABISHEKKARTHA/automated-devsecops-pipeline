@@ -31,7 +31,7 @@ def create_app():
             "geolocation=(), microphone=(), camera=()"
         )
 
-        # Restrict cross-origin resource usage
+        # Restrict cross-origin resource usage for enhanced security
         response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
 
         # Control referrer information
